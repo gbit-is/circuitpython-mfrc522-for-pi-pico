@@ -1,26 +1,32 @@
 # circuitpython-mfrc522
-CircuitPython class to access the MFRC522 RFID reader
 
-<small>Based on the [wendlers/micropython-mfrc522](https://github.com/wendlers/micropython-mfrc522) MicroPython library.
+Minor edit to domdfcoding's mfrc522 library to use it with raspberry pi pico, micropython
 
-Basic class to access RFID readers of the type [MFRC522](http://www.nxp.com/documents/data_sheet/MFRC522.pdf).
-This is basically a re-write of [this](https://github.com/mxgxw/MFRC522-python) Python port for the MFRC522. I
-tried to strip things down and make them more "pythonic" so the result is small enough to run on
-[CircuitPython](https://github.com/adafruit/circuitpython) boards.
+Also, the read.py is mostly stolen from [idriszmy](https://gist.github.com/idriszmy/9fa14377eb3b5a1859e1ff4f41464900#file-code-py), which is based of domdfcodings 
 
 ## Usage
 
-Put the modules ``mfrc522.py``, ``examples/read.py``, ``examples/write.py`` to the root of the flash FS on your board.
+Put the module ``mfrc522.py`` in the /lib/ folder on pi pico 
 
 I used the following pins for my setup:
 
-| Signal    | GPIO ESP8266 | GPIO WiPy      | Note                                 |
-| --------- | ------------ | -------------- | ------------------------------------ |
-| sck       | 0            | "GP14"         |                                      |
-| mosi      | 2            | "GP16"         |                                      |
-| miso      | 4            | "GP15"         |                                      |
-| rst       | 5            | "GP22"         |                                      |
-| cs        | 14           | "GP14"         |Labeled SDA on most RFID-RC522 boards |
+| Signal    | GPIO pi pico | Label on RC522 |
+| --------- | ------------ | -------------- | 
+| MISO      | GP.4         | "MISO"         | 
+| CS        | GP.5         | "SDA or NSS"   |
+| SCK       | GP.6         | "SCK"          |
+| MOSI      | GP.7         | "MOSI"         |
+| RST       | GP.8         | "RST"          |
+| VCC       | 3.3V         | "VCC"          |
+| GND       | GND          | "GND"          |
+
+
+now try to scan a card using read.py 
+
+
+
+## Original usage documentation:
+### I haven't tried these 
 
 Now enter the REPL you could run one of the two examples:
 
