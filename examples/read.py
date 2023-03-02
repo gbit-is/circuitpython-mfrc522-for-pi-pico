@@ -1,49 +1,40 @@
-"""
-Example of reading from a card using the ``mfrc522`` module.
-"""
-
-# 3rd party
+import time
 import board
-
-# this package
 import mfrc522
 
 
-def do_read():
+miso = board.GP4
+cs  = board.GP5
+sck = board.GP6
+mosi = board.GP7
+rst = board.GP8
 
-	rdr = mfrc522.MFRC522(board.SCK, board.MOSI, board.MISO, board.D2, board.D3)
-	rdr.set_antenna_gain(0x07 << 4)
+rfid = mfrc522.MFRC522(sck,mosi,miso, rst, cs)
+rfid.set_antenna_gain(0x07 << 4)
 
-	print('')
-	print("Place card before reader to read from address 0x08")
-	print('')
 
-	try:
-		while True:
+print("\n***** Scan your RFid tag/card *****\n")
 
-			(stat, tag_type) = rdr.request(rdr.REQIDL)
+prev_data = ""
+prev_time = 0
+timeout = 1
 
-			if stat == rdr.OK:
+while True:
+    
+    (status, tag_type) = rfid.request(rfid.REQALL)
 
-				(stat, raw_uid) = rdr.anticoll()
+    if status == rfid.OK:
+        (status, raw_uid) = rfid.anticoll()
 
-				if stat == rdr.OK:
-					print("New card detected")
-					print("  - tag type: 0x%02x" % tag_type)
-					print("  - uid\t : 0x%02x%02x%02x%02x" % (raw_uid[0], raw_uid[1], raw_uid[2], raw_uid[3]))
-					print('')
+        if status == rfid.OK:
+            rfid_data = "{:02x}{:02x}{:02x}{:02x}".format(raw_uid[0], raw_uid[1], raw_uid[2], raw_uid[3])
 
-					if rdr.select_tag(raw_uid) == rdr.OK:
+            if rfid_data != prev_data:
+                prev_data = rfid_data
 
-						key = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+                print("Card detected! UID: {}".format(rfid_data))
+            prev_time = time.monotonic()
 
-						if rdr.auth(rdr.AUTHENT1A, 8, key, raw_uid) == rdr.OK:
-							print("Address 8 data: %s" % rdr.read(8))
-							rdr.stop_crypto1()
-						else:
-							print("Authentication error")
-					else:
-						print("Failed to select tag")
-
-	except KeyboardInterrupt:
-		print("Bye")
+    else:
+        if time.monotonic() - prev_time > timeout:
+            prev_data = ""
